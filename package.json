@@ -1,17 +1,23 @@
 {
   "name": "nest-logger",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Logger library for Nest apps",
   "author": "Jukka Hell",
   "license": "MIT",
   "keywords": ["nest", "winston", "daily-rotate", "logger", "logging"],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jukkahell/nestlogger.git"
+  },
+  "files": ["dist"],
   "scripts": {
     "format": "prettier --write \"lib/**/*.ts\"",
     "lint": "tslint --fix lib/**/*.ts -p tsconfig.json -c tslint.json",
     "build": "rimraf dist && tsc",
     "test": "jest",
+    "prepublishOnly": "npm run build",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "webpack": "webpack --config webpack.config.js"
