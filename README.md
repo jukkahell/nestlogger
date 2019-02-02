@@ -1,6 +1,6 @@
 Use in your project by creating a logger.module.ts with content like this:
 
-```
+```javascript
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "../config/config.module";
 import { LoggerService } from "nestlogger";
@@ -24,7 +24,7 @@ export class LoggerModule {}
 
 Then import logger module wherever you need it:
 
-```
+```javascript
 ...
 import { LoggerModule } from "../logging/logger.module";
 
@@ -42,7 +42,7 @@ export class ItemModule {}
 ```
 
 And log stuff:
-```
+```javascript
 this.logger.debug(`Found ${result.rowCount} items from db`, ItemService.name);
 this.logger.error(`Error while getting items from db`, err.stack, ItemService.name);
 ```
