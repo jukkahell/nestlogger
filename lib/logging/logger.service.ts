@@ -14,7 +14,11 @@ export class LoggerService {
     level: string,
     serviceName: string,
     loggers: LoggerTransport[],
-    path?: string) {
+    path?: string,
+    timeFormat: string = "YYYY-MM-DD HH:mm:ss",
+    fileDatePattern: string = "YYYY-MM-DD",
+    maxFiles: string = "10d",
+    zippedArchive: boolean = false) {
     const transports = [];
     if (loggers && loggers.indexOf(LoggerTransport.CONSOLE) >= 0) {
       transports.push(new winston.transports.Console());
@@ -22,9 +26,9 @@ export class LoggerService {
     if (loggers && loggers.indexOf(LoggerTransport.ROTATE) >= 0) {
       const rotateLogger = new DailyRotateFile({
         filename: `${path}/${serviceName}-%DATE%.log`,
-        datePattern: "YYYY-MM-DD",
-        zippedArchive: false,
-        maxFiles: "10d",
+        datePattern: fileDatePattern,
+        zippedArchive,
+        maxFiles,
         options: { flags: "a", mode: "0776" },
       });
       transports.push(rotateLogger);
@@ -33,7 +37,9 @@ export class LoggerService {
     this.logger = winston.createLogger({
       level,
       format: format.combine(
-          format.timestamp(),
+          format.timestamp({
+            format: timeFormat,
+          }),
           this.getLoggerFormat(),
       ),
       transports,
