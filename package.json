@@ -2,7 +2,10 @@
   "name": "nest-logger",
   "version": "1.4.5",
   "description": "Logger library for Nest apps",
-  "author": "Jukka Hell",
+  "author": { "name": "Jukka Hell", "url": "https://www.maksien.fi" },
+  "contributors": [
+    { "name": "Juuso Kosonen" }
+  ],
   "license": "MIT",
   "keywords": [
     "nest",
