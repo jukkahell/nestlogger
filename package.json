@@ -6,6 +6,7 @@
   "license": "MIT",
   "keywords": [
     "nest",
+    "nestjs",
     "winston",
     "daily-rotate",
     "logger",
