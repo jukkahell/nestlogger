@@ -1,6 +1,6 @@
 {
   "name": "nest-logger",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Logger library for Nest apps",
   "author": "Jukka Hell",
   "license": "MIT",
