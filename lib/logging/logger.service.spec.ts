@@ -1,4 +1,3 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { LoggerService } from "./logger.service";
 import { LoggerTransport } from "./logger.interface";
 import * as fs from "fs";
@@ -6,7 +5,6 @@ import * as rimraf from "rimraf";
 import * as moment from "moment";
 
 describe("LoggerService", () => {
-  let app: TestingModule;
   let logger: LoggerService;
   const filePath = "logs";
   const serviceName = "LoggerLib";
@@ -15,19 +13,7 @@ describe("LoggerService", () => {
 
   beforeAll(async () => {
     rimraf.sync(filePath);
-
-    app = await Test.createTestingModule({
-      providers: [
-        {
-          provide: LoggerService,
-          useFactory: () => {
-            return new LoggerService("debug", serviceName, [LoggerTransport.CONSOLE, LoggerTransport.ROTATE], filePath);
-          },
-        },
-      ],
-    }).compile();
-
-    logger = app.createNestApplication().get<LoggerService>(LoggerService);
+    logger = new LoggerService("debug", serviceName, [LoggerTransport.CONSOLE, LoggerTransport.ROTATE], filePath);
   });
 
   describe("log", () => {
