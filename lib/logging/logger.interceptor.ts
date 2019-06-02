@@ -10,7 +10,9 @@ export class LoggerInterceptor implements NestInterceptor {
     const request: Request = context.switchToHttp().getRequest();
     const requestId = request.header("x-request-id");
     this.logger.setRequestId(requestId);
-    this.httpService.axiosRef.defaults.headers.common["x-request-id"] = requestId;
+    if (requestId) {
+      this.httpService.axiosRef.defaults.headers.common["x-request-id"] = requestId;
+    }
     return next.handle();
   }
 }
