@@ -40,7 +40,7 @@ describe("LoggerService", () => {
 
       setTimeout(() => {
         const log = fs.readFileSync(logfile).toString();
-        expect(log.split("\n").length).toBe(28);
+        expect(log.split("\n").length).toBe(27);
         done();
       }, 600);
     });
