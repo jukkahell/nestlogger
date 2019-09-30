@@ -54,6 +54,11 @@ export class ItemModule {}
 
 And log stuff:
 ```javascript
-this.logger.debug(`Found ${result.rowCount} items from db`, ItemService.name);
-this.logger.error(`Error while getting items from db`, err.stack, ItemService.name);
+import { LoggerService } from "nest-logger";
+constructor(private readonly logger: LoggerService) {}
+
+public logStuff() {
+  this.logger.debug(`Found ${result.rowCount} items from db`, ItemService.name);
+  this.logger.error(`Error while getting items from db`, err.stack, ItemService.name);
+}
 ```
