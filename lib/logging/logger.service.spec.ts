@@ -26,7 +26,12 @@ describe("LoggerService", () => {
           hero: "He-Man",
         },
       };
+
+      const map = new Map();
+      map.set("foo", "bar");
+
       logger.info(object, "LoggerServiceTest");
+      logger.info(map, "LoggerServiceTest");
       logger.log("test log with info level", "LoggerServiceTest");
       logger.warn("test log with warn level", "LoggerServiceTest");
       logger.error("test log with error level", new Error().stack, "LoggerServiceTest");
@@ -40,7 +45,7 @@ describe("LoggerService", () => {
 
       setTimeout(() => {
         const log = fs.readFileSync(logfile).toString();
-        expect(log.split("\n").length).toBe(27);
+        expect(log.split("\n").length).toBe(30);
         done();
       }, 600);
     });

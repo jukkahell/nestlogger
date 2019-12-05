@@ -59,24 +59,35 @@ export class LoggerService {
   }
 
   log(msg: any, context?: string) {
-    this.info(msg, context);
+    this.info(this.dataToString(msg), context);
   }
 
   debug(msg: any, context?: string) {
-    this.logger.debug(msg, [{ context, reqId: this.requestId }]);
+    this.logger.debug(this.dataToString(msg), [{ context, reqId: this.requestId }]);
   }
 
   info(msg: any, context?: string) {
-    this.logger.info(msg, [{ context, reqId: this.requestId }]);
+    this.logger.info(this.dataToString(msg), [{ context, reqId: this.requestId }]);
   }
 
   warn(msg: any, context?: string) {
-    this.logger.warn(msg, [{ context, reqId: this.requestId }]);
+    this.logger.warn(this.dataToString(msg), [{ context, reqId: this.requestId }]);
   }
 
   error(msg: any, trace?: string, context?: string) {
-    this.logger.error(msg, [{ context }]);
+    this.logger.error(this.dataToString(msg), [{ context }]);
     this.logger.error(trace, [{ context, reqId: this.requestId }]);
+  }
+
+  private dataToString(msg: any) {
+    // Support for Map objects
+    if (typeof msg.entries === "function" && typeof msg.forEach === "function") {
+      const elements = [];
+      msg.forEach((value: any, key: any) => elements.push(`${key}:${value}`));
+      return elements;
+    } else {
+      return msg;
+    }
   }
 
   private getLoggerFormat() {

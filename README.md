@@ -1,7 +1,9 @@
-Install
+# Install
 ```
 npm i nest-logger
 ```
+
+# Usage
 
 Use in your project by creating a logger.module.ts with content like this:
 
@@ -62,3 +64,20 @@ public logStuff() {
   this.logger.error(`Error while getting items from db`, err.stack, ItemService.name);
 }
 ```
+
+# Release Notes
+
+## 3.0.0
+- Log Map objects as key-value-pairs
+- Dependency upgrades
+- NestJS 6.3.2 -> 6.10.6
+- Winston Daily Rotate File 3.9.0 -> 4.3.0
+- Typescript 3.5.2 -> 3.7.3
+
+## 2.1.0
+- NestJS 6.2.4 -> 6.3.2
+
+## 2.0.0
+- Nest 5.6.2 -> 6.2.4
+- RxJs 6.4.0 -> 6.5.2
+- Winston Daily Rotate File 3.6.0 -> 3.9.0
