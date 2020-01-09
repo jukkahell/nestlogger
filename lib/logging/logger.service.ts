@@ -1,49 +1,62 @@
 import * as clc from "cli-color";
-import { format } from "winston";
 import * as winston from "winston";
 import * as DailyRotateFile from "winston-daily-rotate-file";
-import { LoggerTransport } from "./logger.interface";
+import { LoggerOptions, LoggerTransport, ConfiguredTransport } from "./logger.interface";
 
 export class LoggerService {
 
+  public static DEFAULT_TIME_FORMAT = "HH:mm:ss";
+  private static DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+    serviceName: "log",
+    timeFormat: LoggerService.DEFAULT_TIME_FORMAT,
+    fileDatePattern: "YYYY-MM-DD",
+    maxFiles: "10d",
+    zippedArchive: false,
+    colorize: true,
+  };
   private logger: winston.Logger;
   private requestId: string;
   private context: string;
 
   constructor(
     level: string,
-    serviceName: string,
-    loggers: LoggerTransport[],
-    path?: string,
-    timeFormat: string = "YYYY-MM-DD HH:mm:ss",
-    fileDatePattern: string = "YYYY-MM-DD",
-    maxFiles: string = "10d",
-    zippedArchive: boolean = false) {
-    const transports = [];
-    if (loggers && loggers.indexOf(LoggerTransport.CONSOLE) >= 0) {
-      transports.push(new winston.transports.Console());
-    }
-    if (loggers && loggers.indexOf(LoggerTransport.ROTATE) >= 0) {
-      const rotateLogger = new DailyRotateFile({
-        filename: `${path}/${serviceName}-%DATE%.log`,
-        datePattern: fileDatePattern,
-        zippedArchive,
-        maxFiles,
-        options: { flags: "a", mode: "0776" },
-      });
-      transports.push(rotateLogger);
-    }
+    loggers: ConfiguredTransport[],
+    ) {
 
+    loggers.forEach(logger => logger.transport.format = this.defaultFormatter(logger.options));
     this.logger = winston.createLogger({
       level,
-      format: format.combine(
-          format.timestamp({
-            format: timeFormat,
-          }),
-          this.getLoggerFormat(),
-      ),
-      transports,
+      transports: loggers.map(l => l.transport),
   });
+  }
+
+  public static getLoggers(transportNames: LoggerTransport[], options?: LoggerOptions) {
+    const loggers = [];
+    if (transportNames.indexOf(LoggerTransport.CONSOLE) >= 0) {
+      loggers.push(LoggerService.console(options));
+    }
+    if (transportNames.indexOf(LoggerTransport.ROTATE) >= 0) {
+      loggers.push(LoggerService.rotate(options));
+    }
+    return loggers;
+  }
+
+  public static console(options?: LoggerOptions): ConfiguredTransport {
+    const consoleLoggerOptions = Object.assign(LoggerService.DEFAULT_LOGGER_OPTIONS, options);
+    const transport = new winston.transports.Console();
+    return { transport, options: consoleLoggerOptions };
+  }
+
+  public static rotate(options?: LoggerOptions): ConfiguredTransport {
+      const fileLoggerOptions = Object.assign(LoggerService.DEFAULT_LOGGER_OPTIONS, options);
+      const transport = new DailyRotateFile({
+        filename: `${fileLoggerOptions.path}/${fileLoggerOptions.serviceName}-%DATE%.log`,
+        datePattern: fileLoggerOptions.fileDatePattern,
+        zippedArchive: fileLoggerOptions.zippedArchive,
+        maxFiles: fileLoggerOptions.maxFiles,
+        options: { flags: "a", mode: "0776" },
+      });
+      return { transport, options: fileLoggerOptions };
   }
 
   setRequestId(id: string) {
@@ -90,9 +103,10 @@ export class LoggerService {
     }
   }
 
-  private getLoggerFormat() {
-    return format.printf(info => {
-      const level = this.colorizeLevel(info.level);
+  private defaultFormatter(options: LoggerOptions) {
+    const colorize = options.colorize;
+    const format = winston.format.printf(info => {
+      const level = colorize ? this.colorizeLevel(info.level) : `[${info.level.toUpperCase()}]`.padEnd(7);
       let message = info.message;
       if (typeof info.message === "object") {
           message = JSON.stringify(message, null, 3);
@@ -102,16 +116,27 @@ export class LoggerService {
       if (info["0"]) {
         const meta = info["0"];
         if (meta.reqId) {
-          reqId = clc.cyan(`[${meta.reqId}]`);
+          reqId = colorize ? clc.cyan(`[${meta.reqId}]`) : `[${meta.reqId}]`;
         }
+
         const ctx = meta.context || this.context || null;
         if (ctx) {
-          context = clc.blackBright(`[${ctx.substr(0, 20)}]`).padEnd(32);
+          context = `[${ctx.substr(0, 20)}]`.padEnd(32);
+          if (colorize) {
+            context = clc.blackBright(context);
+          }
         }
       }
 
       return `${info.timestamp} ${context}${level}${reqId} ${message}`;
     });
+
+    return winston.format.combine(
+      winston.format.timestamp({
+        format: options.timeFormat,
+      }),
+      format,
+    );
   }
 
   private colorizeLevel(level: string) {
