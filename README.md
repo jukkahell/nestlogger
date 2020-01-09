@@ -83,6 +83,7 @@ public logStuff() {
 
 ## 4.0.0
 - More configurable way of initializing the logger
+
    Options can be passed as an object  
    Colors can be disabled/enabled from the options
 
