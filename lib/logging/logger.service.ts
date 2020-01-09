@@ -42,21 +42,23 @@ export class LoggerService {
   }
 
   public static console(options?: LoggerOptions): ConfiguredTransport {
-    const consoleLoggerOptions = Object.assign(LoggerService.DEFAULT_LOGGER_OPTIONS, options);
+    const defaultOptions = Object.assign({}, LoggerService.DEFAULT_LOGGER_OPTIONS);
+    const consoleLoggerOptions = Object.assign(defaultOptions, options);
     const transport = new winston.transports.Console();
     return { transport, options: consoleLoggerOptions };
   }
 
   public static rotate(options?: LoggerOptions): ConfiguredTransport {
-      const fileLoggerOptions = Object.assign(LoggerService.DEFAULT_LOGGER_OPTIONS, options);
-      const transport = new DailyRotateFile({
-        filename: `${fileLoggerOptions.path}/${fileLoggerOptions.serviceName}-%DATE%.log`,
-        datePattern: fileLoggerOptions.fileDatePattern,
-        zippedArchive: fileLoggerOptions.zippedArchive,
-        maxFiles: fileLoggerOptions.maxFiles,
-        options: { flags: "a", mode: "0776" },
-      });
-      return { transport, options: fileLoggerOptions };
+    const defaultOptions = Object.assign({}, LoggerService.DEFAULT_LOGGER_OPTIONS);
+    const fileLoggerOptions = Object.assign(defaultOptions, options);
+    const transport = new DailyRotateFile({
+      filename: `${fileLoggerOptions.path}/${fileLoggerOptions.serviceName}-%DATE%.log`,
+      datePattern: fileLoggerOptions.fileDatePattern,
+      zippedArchive: fileLoggerOptions.zippedArchive,
+      maxFiles: fileLoggerOptions.maxFiles,
+      options: { flags: "a", mode: "0776" },
+    });
+    return { transport, options: fileLoggerOptions };
   }
 
   setRequestId(id: string) {

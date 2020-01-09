@@ -17,14 +17,15 @@ describe("LoggerService", () => {
   beforeAll(async () => {
     rimraf.sync(filePath);
     logger = new LoggerService(
-      "debug", [
-        LoggerService.console(),
-        LoggerService.rotate({ serviceName, path: filePath }),
-      ],
+      "debug",
+      LoggerService.getLoggers([LoggerTransport.CONSOLE, LoggerTransport.ROTATE], { serviceName, path: filePath }),
     );
     noColorsLogger = new LoggerService(
       "debug",
-      LoggerService.getLoggers([LoggerTransport.ROTATE], { serviceName: noColorService, path: filePath, colorize: false }),
+      [
+        LoggerService.console({ serviceName: noColorService, colorize: true }),
+        LoggerService.rotate({ serviceName: noColorService, path: filePath, colorize: false }),
+      ],
     );
   });
 
@@ -75,17 +76,17 @@ describe("LoggerService", () => {
       const map = new Map();
       map.set("foo", "bar");
 
-      noColorsLogger.info(object, "LoggerServiceTest");
-      noColorsLogger.info(map, "LoggerServiceTest");
-      noColorsLogger.log("test log with info level", "LoggerServiceTest");
-      noColorsLogger.warn("test log with warn level", "LoggerServiceTest");
-      noColorsLogger.error("test log with error level", new Error().stack, "LoggerServiceTest");
+      noColorsLogger.info(object, "LoggerServiceNoColorTest");
+      noColorsLogger.info(map, "LoggerServiceNoColorTest");
+      noColorsLogger.log("test log with info level", "LoggerServiceNoColorTest");
+      noColorsLogger.warn("test log with warn level", "LoggerServiceNoColorTest");
+      noColorsLogger.error("test log with error level", new Error().stack, "LoggerServiceNoColorTest");
       noColorsLogger.setRequestId("abc123");
-      noColorsLogger.debug("test log with request id", "LoggerServiceTest");
-      noColorsLogger.debug("test log with long filename", "LoggerServiceTestWithLongFilename");
+      noColorsLogger.debug("test log with request id", "LoggerServiceNoColorTest");
+      noColorsLogger.debug("test log with long filename", "LoggerServiceNoColorTestWithLongFilename");
       noColorsLogger.setContext("TestContext");
       noColorsLogger.info("test log with predefined context");
-      noColorsLogger.info("test log with predefined context overridden", "OverriddenContext");
+      noColorsLogger.info("test log with predefined context overridden", "OverriddenNoColorContext");
       expect(fs.existsSync(noColorsLogFile)).toBe(true);
 
       setTimeout(() => {

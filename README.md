@@ -32,7 +32,7 @@ import { ConfigService } from "../config/config.service";
         //    zippedArchive?: whether to zip old log file. Defaults to false.
         //    colorize?: whether to colorize the log output. Defaults to true.
         const loggers = LoggerService.getLoggers(
-          [ config.logAppenders ],
+          config.logAppenders,
           { serviceName: config.serviceName, path: config.logFilePath, colorize: config.colorize }
         );
         // LoggerService constructor will take two parameters:
@@ -81,12 +81,17 @@ public logStuff() {
 
 # Release Notes
 
+## 4.0.1
+- Fixed a bug where default options were overridden after the first transport creation
+
 ## 4.0.0
 - More configurable way of initializing the logger
 
    Options can be passed as an object  
    Colors can be disabled/enabled from the options
-
+- RxJs 6.5.2 -> 6.5.4
+- Nest 6.10.6 -> 6.10.14
+- Winston Daily Rotate File 4.3.0 -> 4.4.1
 
 ## 3.0.0
 - Log Map objects as key-value-pairs
