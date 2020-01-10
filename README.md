@@ -51,6 +51,18 @@ import { ConfigService } from "../config/config.service";
 export class LoggerModule {}
 ```
 
+You can also do it like this if you want different options for console and file:
+```javascript
+   const loggers = [
+      LoggerService.console({ serviceName: config.serviceName, timeFormat: "HH:mm" }),
+      LoggerService.rotate({ serviceName: config.serviceName, path: config.logFilePath, colorize: false }),
+   ];
+   return new LoggerService(
+      config.logLevel,
+      loggers,
+   );
+```
+
 Then import logger module wherever you need it:
 
 ```javascript
