@@ -30,8 +30,8 @@ export class LoggerService {
   });
   }
 
-  public static getLoggers(transportNames: LoggerTransport[], options?: LoggerOptions) {
-    const loggers = [];
+  public static getLoggers(transportNames: LoggerTransport[], options?: LoggerOptions) : ConfiguredTransport[] {
+    const loggers = [] as ConfiguredTransport[];
     if (transportNames.indexOf(LoggerTransport.CONSOLE) >= 0) {
       loggers.push(LoggerService.console(options));
     }
