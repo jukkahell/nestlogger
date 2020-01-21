@@ -13,9 +13,10 @@ describe("LoggerService", () => {
   const noColorService = "NoColor";
   const overrideService = "Override";
   const today = moment().format("YYYY-MM-DD");
+  const overriddenToday = moment().format("YYYYMMDD");
   const logfile = `${filePath}/${serviceName}-${today}.log`;
   const noColorsLogFile = `${filePath}/${noColorService}-${today}.log`;
-  const overrideLogFile = `${filePath}/${overrideService}-${today}.log`;
+  const overrideLogFile = `${filePath}/${overrideService}-${overriddenToday}.log`;
 
   beforeAll(async () => {
     rimraf.sync(filePath);
@@ -55,6 +56,7 @@ describe("LoggerService", () => {
           colorize: false,
           fileOptions: {
             filename: `${filePath}/${overrideService}-%DATE%.log`,
+            datePattern: "YYYYMMDD",
             level: "info",
           },
         }),
@@ -125,6 +127,7 @@ describe("LoggerService", () => {
       setTimeout(() => {
         const log = fs.readFileSync(noColorsLogFile).toString();
         expect(log.split("\n").length).toBe(29);
+        expect(log.length).toBe(1414);
         done();
       }, 600);
     });
