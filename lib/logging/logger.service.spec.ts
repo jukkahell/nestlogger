@@ -54,6 +54,7 @@ describe("LoggerService", () => {
         }),
         LoggerService.rotate({
           colorize: false,
+          timeFormat: "YYYYMMDD",
           fileOptions: {
             filename: `${filePath}/${overrideService}-%DATE%.log`,
             datePattern: "YYYYMMDD",
@@ -139,7 +140,7 @@ describe("LoggerService", () => {
 
       setTimeout(() => {
         const log = fs.readFileSync(overrideLogFile).toString();
-        expect(log.split("\n").length).toBe(2);
+        expect(log.replace(/(\r\n|\n|\r)/gm, "")).toBe(`${overriddenToday} [OverrideLevel]                 [INFO]  Info level log should be visible`);
         done();
       }, 600);
     });
