@@ -24,13 +24,10 @@ import { ConfigService } from "../config/config.service";
         // 1: Appenders where to log to: console or rotate or both in array
         //    (eg. [LoggerTransport.CONSOLE, LoggerTransport.ROTATE])
         // 2: Logger options object that contains the following properties:
-        //    serviceName: daily rotate files will have this name
-        //    path: where daily rotate files are saved
         //    timeFormat?: winston's time format syntax. Defaults to "HH:mm:ss".
-        //    fileDatePattern?: appended to daily rotate filename. Defaults to "YYYY-MM-DD".
-        //    maxFiles?: how long rotate files are stored. Defaults to "10d" which means 10 days.
-        //    zippedArchive?: whether to zip old log file. Defaults to false.
         //    colorize?: whether to colorize the log output. Defaults to true.
+        //    consoleOptions?: see Winston's ConsoleTransportOptions interface
+        //    fileOptions?: see Winston Daily Rotate File's DailyRotateFile.DailyRotateFileTransportOptions
         const loggers = LoggerService.getLoggers(
           config.logAppenders,
           { serviceName: config.serviceName, path: config.logFilePath, colorize: config.colorize }
@@ -51,14 +48,25 @@ import { ConfigService } from "../config/config.service";
 export class LoggerModule {}
 ```
 
-You can also do it like this if you want different options for console and file:
+You can do it like this if you want different options for console and file:
 ```javascript
    const loggers = [
-      LoggerService.console({ serviceName: config.serviceName, timeFormat: "HH:mm" }),
-      LoggerService.rotate({ serviceName: config.serviceName, path: config.logFilePath, colorize: false }),
+      LoggerService.console({
+        timeFormat: "HH:mm",
+        consoleOptions: {
+          level: "info",
+        },
+      }),
+      LoggerService.rotate({
+        colorize: false,
+        fileOptions: {
+          filename: `${config.logger.path}/${config.serviceName}-%DATE%.log`,
+            level: "error",
+        },
+      }),
    ];
    return new LoggerService(
-      config.logLevel,
+      config.logger.defaultLevel,
       loggers,
    );
 ```
@@ -92,6 +100,9 @@ public logStuff() {
 ```
 
 # Release Notes
+
+## 5.0.0
+- Support for all winston logger options for console and rotate transports
 
 ## 4.0.1
 - Fixed a bug where default options were overridden after the first transport creation

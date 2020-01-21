@@ -1,19 +1,32 @@
 import * as clc from "cli-color";
 import * as winston from "winston";
 import * as DailyRotateFile from "winston-daily-rotate-file";
-import { LoggerOptions, LoggerTransport, ConfiguredTransport } from "./logger.interface";
+import { LoggerOptions, LoggerTransport, ConfiguredTransport, LogLevel } from "./logger.interface";
+import { ConsoleTransportOptions } from "winston/lib/winston/transports";
 
 export class LoggerService {
 
   public static DEFAULT_TIME_FORMAT = "HH:mm:ss";
-  private static DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-    serviceName: "log",
-    timeFormat: LoggerService.DEFAULT_TIME_FORMAT,
-    fileDatePattern: "YYYY-MM-DD",
-    maxFiles: "10d",
+  public static DEFAULT_LEVEL: LogLevel = "info";
+  public static DEFAULT_FILENAME = "-";
+
+  private static DEFAULT_FILE_OPTIONS: DailyRotateFile.DailyRotateFileTransportOptions = {
+    filename: LoggerService.DEFAULT_FILENAME,
+    datePattern: "YYYY-MM-DD",
     zippedArchive: false,
+    maxFiles: "10d",
+    options: { flags: "a", mode: "0776" },
+  };
+
+  private static DEFAULT_CONSOLE_OPTIONS: ConsoleTransportOptions = {};
+
+  private static DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+    timeFormat: LoggerService.DEFAULT_TIME_FORMAT,
+    fileOptions: LoggerService.DEFAULT_FILE_OPTIONS,
+    consoleOptions: LoggerService.DEFAULT_CONSOLE_OPTIONS,
     colorize: true,
   };
+
   private logger: winston.Logger;
   private requestId: string;
   private context: string;
@@ -44,20 +57,21 @@ export class LoggerService {
   public static console(options?: LoggerOptions): ConfiguredTransport {
     const defaultOptions = Object.assign({}, LoggerService.DEFAULT_LOGGER_OPTIONS);
     const consoleLoggerOptions = Object.assign(defaultOptions, options);
-    const transport = new winston.transports.Console();
+    const consoleTransportOptions = Object.assign(defaultOptions.consoleOptions, options.consoleOptions);
+    const transport = new winston.transports.Console(consoleTransportOptions);
     return { transport, options: consoleLoggerOptions };
   }
 
   public static rotate(options?: LoggerOptions): ConfiguredTransport {
     const defaultOptions = Object.assign({}, LoggerService.DEFAULT_LOGGER_OPTIONS);
     const fileLoggerOptions = Object.assign(defaultOptions, options);
-    const transport = new DailyRotateFile({
-      filename: `${fileLoggerOptions.path}/${fileLoggerOptions.serviceName}-%DATE%.log`,
-      datePattern: fileLoggerOptions.fileDatePattern,
-      zippedArchive: fileLoggerOptions.zippedArchive,
-      maxFiles: fileLoggerOptions.maxFiles,
-      options: { flags: "a", mode: "0776" },
-    });
+    const fileTransportOptions = Object.assign(defaultOptions.fileOptions, options.fileOptions);
+
+    if (fileTransportOptions.filename === LoggerService.DEFAULT_FILENAME) {
+      fileTransportOptions.filename = `app-%DATE%.log`;
+    }
+
+    const transport = new DailyRotateFile(fileTransportOptions);
     return { transport, options: fileLoggerOptions };
   }
 
