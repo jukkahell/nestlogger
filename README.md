@@ -28,9 +28,15 @@ import { ConfigService } from "../config/config.service";
         //    colorize?: whether to colorize the log output. Defaults to true.
         //    consoleOptions?: see Winston's ConsoleTransportOptions interface
         //    fileOptions?: see Winston Daily Rotate File's DailyRotateFile.DailyRotateFileTransportOptions
+        const options: LoggerOptions = {
+          fileOptions: {
+            filename: `${config.logger.path}/${config.serviceName}-%DATE%.log`,
+          },
+          colorize: config.colorize,
+        };
         const loggers = LoggerService.getLoggers(
           config.logAppenders,
-          { serviceName: config.serviceName, path: config.logFilePath, colorize: config.colorize }
+          options,
         );
         // LoggerService constructor will take two parameters:
         // 1. Log level: debug, info, warn or error
@@ -61,7 +67,7 @@ You can do it like this if you want different options for console and file:
         colorize: false,
         fileOptions: {
           filename: `${config.logger.path}/${config.serviceName}-%DATE%.log`,
-            level: "error",
+          level: "error",
         },
       }),
    ];
