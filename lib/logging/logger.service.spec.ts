@@ -7,24 +7,60 @@ import { LoggerTransport } from "./logger.interface";
 describe("LoggerService", () => {
   let logger: LoggerService;
   let noColorsLogger: LoggerService;
+  let overrideLevelLogger: LoggerService;
   const filePath = "logs";
   const serviceName = "LoggerLib";
-  const noColorService = "NoColorLib";
+  const noColorService = "NoColor";
+  const overrideService = "Override";
   const today = moment().format("YYYY-MM-DD");
+  const overriddenToday = moment().format("YYYYMMDD");
   const logfile = `${filePath}/${serviceName}-${today}.log`;
   const noColorsLogFile = `${filePath}/${noColorService}-${today}.log`;
+  const overrideLogFile = `${filePath}/${overrideService}-${overriddenToday}.log`;
 
   beforeAll(async () => {
     rimraf.sync(filePath);
     logger = new LoggerService(
       "debug",
-      LoggerService.getLoggers([LoggerTransport.CONSOLE, LoggerTransport.ROTATE], { serviceName, path: filePath }),
+      LoggerService.getLoggers(
+        [LoggerTransport.CONSOLE, LoggerTransport.ROTATE],
+        {
+          fileOptions: {
+            filename: `${filePath}/${serviceName}-%DATE%.log`,
+          },
+        }),
     );
     noColorsLogger = new LoggerService(
       "debug",
       [
-        LoggerService.console({ serviceName: noColorService, colorize: true }),
-        LoggerService.rotate({ serviceName: noColorService, path: filePath, colorize: false }),
+        LoggerService.console({ colorize: true }),
+        LoggerService.rotate({
+          colorize: false,
+          fileOptions: {
+            filename: `${filePath}/${noColorService}-%DATE%.log`,
+          },
+        }),
+      ],
+    );
+
+    overrideLevelLogger = new LoggerService(
+      "debug",
+      [
+        LoggerService.console({
+          colorize: true,
+          consoleOptions: {
+            level: "info",
+          },
+        }),
+        LoggerService.rotate({
+          colorize: false,
+          timeFormat: "YYYYMMDD",
+          fileOptions: {
+            filename: `${filePath}/${overrideService}-%DATE%.log`,
+            datePattern: "YYYYMMDD",
+            level: "info",
+          },
+        }),
       ],
     );
   });
@@ -76,22 +112,35 @@ describe("LoggerService", () => {
       const map = new Map();
       map.set("foo", "bar");
 
-      noColorsLogger.info(object, "LoggerServiceNoColorTest");
-      noColorsLogger.info(map, "LoggerServiceNoColorTest");
-      noColorsLogger.log("test log with info level", "LoggerServiceNoColorTest");
-      noColorsLogger.warn("test log with warn level", "LoggerServiceNoColorTest");
-      noColorsLogger.error("test log with error level", new Error().stack, "LoggerServiceNoColorTest");
+      noColorsLogger.info(object, "NoColorTest");
+      noColorsLogger.info(map, "NoColorTest");
+      noColorsLogger.log("test log with info level", "NoColorTest");
+      noColorsLogger.warn("test log with warn level", "NoColorTest");
+      noColorsLogger.error("test log with error level", new Error().stack, "NoColorTest");
       noColorsLogger.setRequestId("abc123");
-      noColorsLogger.debug("test log with request id", "LoggerServiceNoColorTest");
-      noColorsLogger.debug("test log with long filename", "LoggerServiceNoColorTestWithLongFilename");
+      noColorsLogger.debug("test log with request id", "NoColorTest");
+      noColorsLogger.debug("test log with long filename", "NoColorTestWithLongFilename");
       noColorsLogger.setContext("TestContext");
       noColorsLogger.info("test log with predefined context");
-      noColorsLogger.info("test log with predefined context overridden", "OverriddenNoColorContext");
+      noColorsLogger.info("test log with predefined context overridden", "NoColorTest");
       expect(fs.existsSync(noColorsLogFile)).toBe(true);
 
       setTimeout(() => {
         const log = fs.readFileSync(noColorsLogFile).toString();
         expect(log.split("\n").length).toBe(29);
+        expect(log.length).toBe(1414);
+        done();
+      }, 600);
+    });
+
+    it("should log only info level logs", (done) => {
+      overrideLevelLogger.debug("Debug level log should not be visible", "OverrideLevel");
+      overrideLevelLogger.info("Info level log should be visible", "OverrideLevel");
+      expect(fs.existsSync(overrideLogFile)).toBe(true);
+
+      setTimeout(() => {
+        const log = fs.readFileSync(overrideLogFile).toString();
+        expect(log.replace(/(\r\n|\n|\r)/gm, "")).toBe(`${overriddenToday} [OverrideLevel]                 [INFO]  Info level log should be visible`);
         done();
       }, 600);
     });
