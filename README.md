@@ -10,7 +10,7 @@ Use in your project by creating a logger.module.ts with content like this:
 ```javascript
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "../config/config.module";
-import { LoggerService } from "nest-logger";
+import { LoggerService, LoggerOptions } from "nest-logger";
 import { ConfigService } from "../config/config.service";
 
 @Module({
