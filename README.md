@@ -107,6 +107,9 @@ public logStuff() {
 
 # Release Notes
 
+## 5.0.1
+- Nullpointer fix to init loggers without passing any options (credits to OpportunityLiu)
+
 ## 5.0.0
 - Support for all winston logger options for console and rotate transports
 
