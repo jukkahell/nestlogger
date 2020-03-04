@@ -57,7 +57,7 @@ export class LoggerService {
   public static console(options?: LoggerOptions): ConfiguredTransport {
     const defaultOptions = Object.assign({}, LoggerService.DEFAULT_LOGGER_OPTIONS);
     const consoleLoggerOptions = Object.assign(defaultOptions, options);
-    const consoleTransportOptions = Object.assign(defaultOptions.consoleOptions, options.consoleOptions);
+    const consoleTransportOptions = Object.assign(defaultOptions.consoleOptions, consoleLoggerOptions.consoleOptions);
     const transport = new winston.transports.Console(consoleTransportOptions);
     return { transport, options: consoleLoggerOptions };
   }
@@ -65,7 +65,7 @@ export class LoggerService {
   public static rotate(options?: LoggerOptions): ConfiguredTransport {
     const defaultOptions = Object.assign({}, LoggerService.DEFAULT_LOGGER_OPTIONS);
     const fileLoggerOptions = Object.assign(defaultOptions, options);
-    const fileTransportOptions = Object.assign(defaultOptions.fileOptions, options.fileOptions);
+    const fileTransportOptions = Object.assign(defaultOptions.fileOptions, fileLoggerOptions.fileOptions);
 
     if (fileTransportOptions.filename === LoggerService.DEFAULT_FILENAME) {
       fileTransportOptions.filename = `app-%DATE%.log`;
