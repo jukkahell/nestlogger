@@ -66,6 +66,16 @@ describe("LoggerService", () => {
   });
 
   describe("log", () => {
+    it("should create transport with no options", () => {
+      const consoleTransport = LoggerService.console();
+      const rotateTransport = LoggerService.rotate();
+      const allTransports = LoggerService.getLoggers([LoggerTransport.CONSOLE, LoggerTransport.ROTATE]);
+
+      expect(consoleTransport).toBeTruthy();
+      expect(rotateTransport).toBeTruthy();
+      expect(allTransports).toHaveLength(2);
+    });
+
     it("should print log for every level", (done) => {
       const object = {
         message: "This is the message",
