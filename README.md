@@ -107,6 +107,10 @@ public logStuff() {
 
 # Release Notes
 
+## 6.0.0
+- NestJS 6.10.14 -> 7.0.9
+- Updated other deps to the latest
+
 ## 5.0.1
 - Nullpointer fix to init loggers without passing any options (credits to OpportunityLiu)
 
