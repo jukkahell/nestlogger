@@ -1,5 +1,6 @@
 import * as clc from "cli-color";
 import * as winston from "winston";
+import * as logform from "logform";
 import * as DailyRotateFile from "winston-daily-rotate-file";
 import { LoggerOptions, LoggerTransport, ConfiguredTransport, LogLevel } from "./logger.interface";
 import { ConsoleTransportOptions } from "winston/lib/winston/transports";
@@ -32,15 +33,22 @@ export class LoggerService {
   private context: string;
 
   constructor(
-    level: string,
+    level: string | winston.LoggerOptions,
     loggers: ConfiguredTransport[],
-    ) {
-
-    loggers.forEach(logger => logger.transport.format = this.defaultFormatter(logger.options));
-    this.logger = winston.createLogger({
-      level,
-      transports: loggers.map(l => l.transport),
-  });
+    formatter?: (options: LoggerOptions) => logform.Format
+  ) {
+    loggers.forEach(logger => logger.transport.format = formatter ? formatter(logger.options) : this.defaultFormatter(logger.options));
+    // TODO: fix level => loggerOptions in the next major release
+    if (typeof level === "string" || level instanceof String) {
+      this.logger = winston.createLogger({
+        level: level as string,
+        transports: loggers.map(l => l.transport),
+      });
+    } else {
+      const winstonLoggerOptions: winston.LoggerOptions = level;
+      winstonLoggerOptions.transports = loggers.map(l => l.transport);
+      this.logger = winston.createLogger(winstonLoggerOptions);
+    }
   }
 
   public static getLoggers(transportNames: LoggerTransport[], options?: LoggerOptions) : ConfiguredTransport[] {

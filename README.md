@@ -3,7 +3,29 @@
 npm i nest-logger
 ```
 
-# Usage
+# TL;DR
+
+Add this in your logger module's useFactory, inject LoggerService and start logging beautiful log entries.
+
+```javascript
+const options: LoggerOptions = {
+  fileOptions: {
+    filename: `${config.logger.path}/${config.serviceName}-%DATE%.log`,
+  },
+  colorize: config.colorize,
+};
+const loggers = LoggerService.getLoggers(
+  config.logAppenders,
+  options,
+);
+
+return new LoggerService(
+  config.logLevel,
+  loggers,
+);
+```
+
+# Detailed usage examples
 
 Use in your project by creating a logger.module.ts with content like this:
 
@@ -54,6 +76,7 @@ import { ConfigService } from "../config/config.service";
 export class LoggerModule {}
 ```
 
+## Overriding transport options per logger
 You can do it like this if you want different options for console and file:
 ```javascript
    const loggers = [
@@ -77,7 +100,70 @@ You can do it like this if you want different options for console and file:
    );
 ```
 
-Then import logger module wherever you need it:
+## Overriding formatter function
+
+Write a function that returns logform.Format object (it's the same what Winston uses):
+
+```javascript
+const customFormatter = (options: LoggerOptions) => {
+  const format = winston.format.printf(info => {
+    const level = options.colorize ? this.colorizeLevel(info.level) : `[${info.level.toUpperCase()}]`.padEnd(7);
+    return `${info.timestamp} ${context}${level}${reqId} ${info.message}`;
+  });
+
+  return winston.format.combine(
+    winston.format.timestamp({
+      format: options.timeFormat,
+    }),
+    format,
+  );
+}
+```
+
+Pass the formatter function as the third param of LoggerService's constructor
+```javascript
+
+return new LoggerService(
+  config.logLevel,
+  loggers,
+  customFormatter
+);
+```
+
+## Overriding winston logger options
+
+Replace level parameter in the first argument of LoggerService's constructor.  
+Note that the transports option will be set from the loggers (second constructor parameter) so there's no use to override those here.
+```javascript
+const myCustomLevels = {
+  levels: {
+    info: 0,
+    warning: 1,
+    error: 2,
+    apocalypse: 3
+  },
+  colors: {
+    info: 'blue',
+    warning: 'green',
+    error: 'yellow',
+    apocalypse: 'red'
+  }
+};
+const loggerOptions: winston.LoggerOptions = {
+  level: config.logLevel,
+  levels: customLevels,
+}
+
+return new LoggerService(
+  loggerOptions,
+  loggers,
+  customFormatter
+);
+```
+
+## Using the logger
+
+Import logger module wherever you need it:
 
 ```javascript
 ...
@@ -106,6 +192,16 @@ public logStuff() {
 ```
 
 # Release Notes
+
+## 6.1.0
+- Pass Winston logger options as an optional constructor parameter for LoggerService
+- Pass custom formatter function as an optional constructor parameter for LoggerService
+- NestJS 7.0.9 -> 7.4.4
+- Moment 2.25.3 -> 2.29.0
+- rxjs 6.5.4 -> 6.6.3
+- Typescript 3.8.3 -> 4.0.3
+- Winston 3.2.1 -> 3.3.3
+- Winston Daily Rotate File 4.4.2 -> 4.5.0
 
 ## 6.0.0
 - NestJS 6.10.14 -> 7.0.9
