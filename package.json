@@ -40,7 +40,7 @@
     "webpack": "webpack --config webpack.config.js"
   },
   "dependencies": {
-    "@nestjs/common": "7.4.4",
+    "@nestjs/common": "^7.6.11",
     "@nestjs/core": "7.4.4",
     "@nestjs/testing": "7.4.4",
     "event-stream": "4.0.1",
