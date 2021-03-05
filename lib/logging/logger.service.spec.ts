@@ -138,7 +138,7 @@ describe("LoggerService", () => {
       setTimeout(() => {
         const log = fs.readFileSync(noColorsLogFile).toString();
         expect(log.split("\n").length).toBe(29);
-        expect(log.length).toBe(1414);
+        expect(log.length).toBe(1358);
         done();
       }, 600);
     });

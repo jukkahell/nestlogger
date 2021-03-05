@@ -10,12 +10,12 @@ Add this in your logger module's useFactory, inject LoggerService and start logg
 ```javascript
 const options: LoggerOptions = {
   fileOptions: {
-    filename: `${config.logger.path}/${config.serviceName}-%DATE%.log`,
+    filename: `logs/my-service-%DATE%.log`,
   },
   colorize: config.colorize,
 };
 const loggers = LoggerService.getLoggers(
-  config.logAppenders,
+  [LoggerTransport.CONSOLE, LoggerTransport.ROTATE],
   options,
 );
 
@@ -192,6 +192,10 @@ public logStuff() {
 ```
 
 # Release Notes
+
+## 6.2.0
+- NestJS 7.4.4 -> 7.6.11
+- Axios 0.20.0 -> 0.21.1
 
 ## 6.1.0
 - Pass Winston logger options as an optional constructor parameter for LoggerService
