@@ -193,6 +193,13 @@ public logStuff() {
 
 # Release Notes
 
+## 7.0.0
+- NestJS 7.6.11 -> 7.6.15
+- Merge 1.2.1 -> 2.1.1
+- RxJS 6.6.3 -> 7.0.0
+- etc. libs to the latest
+- Moment only needed in devDependencies
+
 ## 6.2.0
 - NestJS 7.4.4 -> 7.6.11
 - Axios 0.20.0 -> 0.21.1
